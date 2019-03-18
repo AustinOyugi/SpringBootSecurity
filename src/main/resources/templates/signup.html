@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <style type="text/css">
+        body{
+            margin: 0;
+            background: #dadfe8;
+        }
+
+        form button{
+            width: 100%;
+        }
+
+        form label{
+            font-size: 20px;
+        }
+
+        form #createAccount{
+            width: 100%;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        form div{
+            display: inline;
+        }
+
+        .container{
+            width: 700px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            -webkit-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+        }
+
+        .inErr{
+            display: none;
+        }
+        .test{
+            display: block;
+        }
+
+        .userNameFoundError{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <form action="#" th:action="@{/addUser}" th:object="${user}" th:method="post" method="post" id="form" onsubmit="return validate()">
+        <div class="form-group">
+            <label for="firstName">FirstName</label>
+            <input type="text" th:field ="*{name}" class="form-control username" id="firstName" aria-describedby="usernameHelp" placeholder="First Name" required>
+            <div class="invalid-feedback inErr">Sorry, that username's taken. Try another?</div>
+            <small id="usernameHelp" class="form-text text-muted">Enter Your Username</small>
+        </div>
+
+        <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input type="text" th:field ="*{lastName}" class="form-control username" id="lastName" aria-describedby="lastNameHelp" placeholder="Last Name" required>
+            <div class="invalid-feedback inErr">Sorry, that username's taken. Try another?</div>
+            <small id="lastNameHelp" class="form-text text-muted">Enter Your Username</small>
+        </div>
+
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" th:field="*{email}" class="form-control email" aria-describedby="emailHelp" id="email" name="email" placeholder="Email" required>
+            <div class="invalid-feedback userNameFoundError" id="feedbackEmail">Sorry, that email already exists. Try another?</div>
+            <small id="emailHelp" class="form-text text-muted">Enter your Email</small>
+
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" th:field="*{password}" class="form-control password" aria-describedby="passwordHelp" id="password" placeholder="Password" required>
+            <div class="invalid-feedback inErr">Passwords do not match</div>
+            <small id="passwordHelp" class="form-text text-muted ">Enter your password</small>
+        </div>
+
+        <div class="form-group">
+            <label for="confirm-password">Confirm Password</label>
+            <input type="password" class="form-control confirm-password" aria-describedby="confirm-passwordHelp" id="confirm-password" placeholder="Confirm Password" required>
+            <div class="invalid-feedback inErr">Passwords do not match</div>
+            <small id="confirm-passwordHelp" class="form-text text-muted">Re-Enter your password</small>
+        </div>
+        <input type="submit" value="Login" id="signupbtn" class="btn btn-primary">
+        <div id="back"><a href="">Back</a></div>
+    </form>
+</div>
+
+    <script>
+
+        window.oncontextmenu = null;
+         function validate(ev) {
+            const pass1 = document.getElementById('password').value;
+            console.log(pass1);
+            const pass2 = document.getElementById('confirm-password').value;
+            console.log(pass2);
+
+             if(checkUserIfExist() == false)
+                 return false;
+
+            if(pass1.localeCompare(pass2) != 0)
+            {
+                document.getElementById('password').classList.add('is-invalid');
+                document.getElementById('confirm-password').classList.add('is-invalid');
+                document.getElementById('password').classList.add('is-invalid');
+                $('.inErr').addClass('test');
+                return false;
+            }else
+                return true;
+        }
+
+        function checkUserIfExist()
+        {
+            document.getElementById('email').addEventListener("focusout",function () {
+                const email = document.getElementById('email').value;
+                const newEmail = email.substring(0,email.length-4);
+
+                var xhr = new XMLHttpRequest();
+
+                xhr.open("GET", `http://127.0.0.1:8080/ addUser/${newEmail}`, true);
+
+                xhr.onload = function () {
+                    if (xhr.status ==200)
+                    {
+                        var userAvailable = xhr.responseText;
+
+                        if(userAvailable == "Available")
+                        {
+                            document.getElementById('email').classList.add("is-invalid");
+                            $('.userNameFoundError').addClass('test');
+
+                            document.getElementById('signupbtn').classList.add('disabled');
+                        }
+                    }
+                }
+
+                document.getElementById('email').addEventListener("focus", function () {
+                    document.getElementById('email').classList.remove("is-invalid");
+
+                    document.querySelector(".userNameFoundError").classList.remove("test");
+                });
+
+                xhr.onerror = function()
+                {
+                    console.log(xhr.ERROR);
+                }
+                xhr.send();
+            });
+        }
+
+         checkUserIfExist();
+    </script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+</body>
+</html>
